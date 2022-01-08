@@ -129,9 +129,8 @@ dmypy.json
 .pyre/
 
 # Chat files
-_chat.txt
-_chat.csv
-results.csv
+*.txt
+*.csv
 
 # Test files
 test.py
