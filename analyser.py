@@ -56,8 +56,9 @@ class WA_Analyser:
                 line = line.replace('\n', '')
 
             # 1- In case action is has been taken
-            if len(action_symbol) != 0:
+            if len(action_symbol) != 0 and len(date_time) !=0:
                 line = line.replace(date_time[0], '')
+
                 line = line.replace(action_symbol[0], '')
                 try:
                     if ':' in line:
@@ -131,8 +132,25 @@ class WA_Analyser:
         members = self.df['sender'].unique()
         members.sort()
         return members
+    
+    def get_members_contributations_counts(self):
+        members = self.df['sender'].value_counts()
+        return members
+    
+    def get_group_names(self):
+        group_names = []
+        for item in self.df['action type']:
+            if item is not None and ('created group' in item or 'changed the subject to' in item):
+                item = item.replace('created group', '')
+                item = item.replace('changed the subject to', '')
+                item = item.replace('“', '').replace('”', '')
+                group_names.append(item)
+        
+        return group_names
 
 if __name__ == '__main__':
-    analyse = WA_Analyser('_chat.txt')
+    analyse = WA_Analyser('_chat_1.txt')
     # analyse.create_csv()
-    print(analyse.get_members()) 
+    print(analyse.get_members())
+    print(analyse.get_members_contributations_counts()) 
+    print(analyse.get_group_names())
