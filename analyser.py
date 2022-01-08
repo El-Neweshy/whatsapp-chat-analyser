@@ -65,6 +65,7 @@ def analyse_lines(text_file_lines):
                 message = split[1]
                 date = dates[0]
                 time = times[0]
+                action = False
             except:
                 message = line
 
@@ -79,7 +80,19 @@ def analyse_lines(text_file_lines):
     return data
 
 
+def create_csv(lst):
+    df = pd.DataFrame(columns=['date', 'time', 'sender', 'message', 'action'])
+
+    for dict in lst:
+        df = df.append(dict, ignore_index=True)
+
+    df.to_csv('results.csv', sep=',', encoding='utf-8-sig')
+
+    return df
+
+
 if __name__ == '__main__':
     text_file_lines = read_txt_file('_chat.txt')
     data = analyse_lines(text_file_lines)
-    print(data[0])
+    create_csv(data)
+    # print(data[0])
