@@ -130,6 +130,7 @@ dmypy.json
 
 # Chat files
 _chat.txt
+_chat.csv
 
 # Test files
 test.py
