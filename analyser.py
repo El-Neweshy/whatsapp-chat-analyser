@@ -37,6 +37,7 @@ class WA_Analyser:
         data = []
 
         for line in self.text_file_lines:
+
             date_time = re.findall(
                 r'\[\d{2}\/\d{2}\/\d{4}, \d{1,2}\:\d{2}:\d{2} \w{2}\]', line)
             dates = re.findall(r'\d{2}\/\d{2}\/\d{4}', line)
@@ -56,27 +57,31 @@ class WA_Analyser:
                 line = line.replace('\n', '')
 
             # 1- In case action is has been taken
-            if len(action_symbol) != 0 and len(date_time) !=0:
+            if len(action_symbol) != 0 and len(date_time) != 0:
+
                 line = line.replace(date_time[0], '')
 
                 line = line.replace(action_symbol[0], '')
                 try:
-                    if ':' in line:
-                        split = re.split(':', line)
-                        sender = split[0]
-                        action_type = split[1]
-                    elif 'created' in line:
+                    if 'created' in line:
                         split = re.split('created', line)
                         sender = split[0]
                         action_type = 'created' + split[1]
+
                     elif 'changed' in line:
                         split = re.split('changed', line)
                         sender = split[0]
                         action_type = 'changed' + split[1]
+
                     elif 'added' in line:
                         split = re.split('added', line)
                         sender = split[0]
                         action_type = 'added' + split[1]
+
+                    elif ':' in line:
+                        split = re.split(':', line)
+                        sender = split[0]
+                        action_type = split[1]
 
                     message = None
                     date = dates[0]
@@ -113,13 +118,11 @@ class WA_Analyser:
     def create_df(self):
         df = pd.DataFrame(
             columns=['date', 'time', 'sender', 'message', 'action type'])
-
-        for dict in self.data:
-            df = df.append(dict, ignore_index=True)
+        
+        df = pd.DataFrame(self.data)
 
         # strip all spaces
         df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
-
         self.df = df
         return self.df
 
@@ -132,11 +135,11 @@ class WA_Analyser:
         members = self.df['sender'].unique()
         members.sort()
         return members
-    
+
     def get_members_contributations_counts(self):
         members = self.df['sender'].value_counts()
         return members
-    
+
     def get_group_names(self):
         group_names = []
         for item in self.df['action type']:
@@ -145,12 +148,25 @@ class WA_Analyser:
                 item = item.replace('changed the subject to', '')
                 item = item.replace('“', '').replace('”', '')
                 group_names.append(item)
-        
+
         return group_names
 
+    def search(self, search_input):
+        search_dict = {}
+        for index, row in self.df.iterrows():
+            if row['message'] is not None and search_input in row['message']:
+                if row['sender'] in search_dict:
+                    search_dict[row['sender']] += 1
+                else:
+                    search_dict[row['sender']] = 1
+
+        return search_dict
+
+
 if __name__ == '__main__':
-    analyse = WA_Analyser('_chat_1.txt')
-    # analyse.create_csv()
-    print(analyse.get_members())
-    print(analyse.get_members_contributations_counts()) 
-    print(analyse.get_group_names())
+    analysis = WA_Analyser('dina.txt')
+    # analysis.create_csv()
+    # print(analysis.get_members())
+    # print(analysis.get_members_contributations_counts())
+    # print(analysis.get_group_names())
+    print(analysis.search('بحبك'))
